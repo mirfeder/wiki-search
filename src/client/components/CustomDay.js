@@ -90,6 +90,7 @@ export default function CustomDay() {
         maxDate={yesterday}
         minDate={dayjs('2015-05-01')}
         onError={(newError) => setError(newError)}
+        id='week-calendar'
       />
     </LocalizationProvider>
   );
