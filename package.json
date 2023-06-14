@@ -1,0 +1,32 @@
+{
+  "name": "wiki-search",
+  "version": "1.0.0",
+  "description": "##search wikipedia for usage statistics",
+  "main": "./client/App.js",
+  "author": "Miriam Feder",
+  "license": "ISC",
+  "dependencies": {
+    "@emotion/cache": "^11.11.0",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.13.5",
+    "@mui/x-date-pickers": "^6.7.0",
+    "@mui/x-date-pickers-pro": "^6.7.0",
+    "apexcharts": "^3.41.0",
+    "dayjs": "^1.11.8",
+    "react": "^18.2.0",
+    "react-apexcharts": "^1.4.0",
+    "react-datetime-pickers": "^1.1.2",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.5",
+    "@types/react": "^18.2.12",
+    "@types/react-dom": "^18.2.5",
+    "eslint": "^8.21.0",
+    "eslint-config-prettier": "^8.5.0",
+    "parcel": "^2.9.2",
+    "prettier": "^2.7.1",
+    "process": "^0.11.10"
+  }
+}
