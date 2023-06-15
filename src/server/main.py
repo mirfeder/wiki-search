@@ -1,32 +1,34 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import List
 import requests
 
 app = FastAPI()
 
-origins = [
-    "http://localhost",
-    "http://localhost:1234",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+class Article(BaseModel):
+    article: str
+    views: int
+    rank: int
+class WikiResponseBody(BaseModel):
+    project: str
+    access: str
+    year: str
+    month: str
+    day: str
+    articles: List[Article]
+class WikiResponse(BaseModel):
+    items: List[WikiResponseBody]
 
 baseUrl = 'https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/'
 
-@app.get("/monthly/{year}/{month}/{day}")
-def getMonthly(year, month, day):
-    fullUrl = f'{baseUrl}{year}/{month}/{day}'
+@app.get("/monthly/{year}/{month}")
+def getMonthly(year, month):
+    fullUrl = f'{baseUrl}{year}/{month}/all-days'
     print(fullUrl)
     headers = {'User-Agent': 'mirfeder@gmail.com'}
     pageViews = requests.get(fullUrl, headers=headers)
-    print(pageViews.json())
-    return {'pageViews': pageViews.json()}
+    pageViews:WikiResponse = pageViews.json()
+    return {'pageViews': pageViews['items'][0]['articles']}
 
 
 

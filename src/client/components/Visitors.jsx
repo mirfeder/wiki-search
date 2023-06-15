@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Box, Button, Grid, Stack, Typography } from '@mui/material'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { DataGrid } from '@mui/x-data-grid'
 import dayjs from 'dayjs';
+
 
 import IncomeAreaChart from './IncomeAreaChart';
 import MainCard from './MainCard';
@@ -9,15 +11,50 @@ import CustomDay from './CustomDay';
 
 const Visitors = () => {
 
+  const row = [{id: 0, article: '', views: ''}]
   const yesterday = dayjs().subtract(1, 'day');
   const [slot, setSlot] = useState('week');
   const [endDateValue, setEndDateValue] = useState(null);
+  const [rows, setRows] = useState(row)
   const [error, setError] = useState(null);
-    
 
-  const changeEndDateValue = (newValue) => {
-    console.log(dayjs(newValue).toISOString().slice(0,10).replace(/-/g, '/'))
+  const columns =[
+    {
+      field: 'id',
+      headerName: 'rank',
+      width: 0
+    },
+    {
+      field: 'article',
+      headerName: 'article',
+      width: 400
+    },
+    {
+      field: 'views',
+      headerName: 'views',
+      width: 150
+    }
+  ];   
+
+  const changeEndDateValue = async (newValue) => {
+    const url = '/api/monthly/'
+    const fullUrl = url + dayjs(newValue).toISOString().slice(0,7).replace(/-/g, '/')
     setEndDateValue(newValue)
+    response = await fetch(fullUrl)
+    response = await response.json()
+    if (response != undefined) {
+      console.log(response)
+      const newrows = []
+      for (let i = 0; i < response['pageViews'].length; i++){
+        newrows.push({
+          article: response['pageViews'][i]['article'],
+          views: response['pageViews'][i]['views'],
+          id: response['pageViews'][i]['rank']
+        })
+      }
+      setRows(newrows)
+    }
+    
   }
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
@@ -85,6 +122,20 @@ const Visitors = () => {
           </Stack>
         </MainCard>
         <MainCard content={false} sx={{ mt: 1.5 }}>
+          <Box sx={{ height: 1000, width: '100%' }}>
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              initialState={{
+                pagination: {
+                  paginationModel: {
+                    pageSize: 25,
+                  },
+                },
+              }}
+              pageSizeOptions={[25, 50]}
+            />
+          </Box>
           <Box sx={{ pt: 1, pr: 2 }}>
             <IncomeAreaChart slot={slot} />
           </Box>
