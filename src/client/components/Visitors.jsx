@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Box, Button, Grid, Stack, Typography } from '@mui/material'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { DataGrid } from '@mui/x-data-grid'
 import dayjs from 'dayjs';
 import Path from 'path'
-import { useTheme } from '@mui/material/styles';
 
 import IncomeAreaChart from './IncomeAreaChart';
 import MainCard from './MainCard';
@@ -19,21 +18,20 @@ const Visitors = () => {
   const [monthValue, setmonthValue] = useState(null);
   const [rows, setRows] = useState(row)
   const [articleData, setArticleData] = useState([0, 0, 0, 0, 0, 0, 0])
-  const [error, setError] = useState(null);
-  const theme = useTheme()
+
 
   const columns = [
     {
       field: 'id',
       headerName: 'Rank',
       headerClassName: 'super-app-theme--header',
-      width: 20
+      width: 40
     },
     {
       field: 'article',
       headerName: 'Article',
       headerClassName: 'super-app-theme--header',
-      width: 400
+      width: 300
     },
     {
       field: 'views',
@@ -151,9 +149,9 @@ const Visitors = () => {
     console.log(response['pageViews'])
     const arr = response['pageViews']
     if (response != undefined) {
-      const viewData = slot === 'week' 
-      ? new Array(7).fill(0)
-      : new Array(31).fill(0)
+      const viewData = slot === 'week'
+        ? new Array(7).fill(0)
+        : new Array(31).fill(0)
       for (let i = 0; i < arr.length; i++) {
         if (slot === 'week') {
           switch (dayjs(arr[i]['timestamp'].slice(0, 8)).day()) {
@@ -193,96 +191,95 @@ const Visitors = () => {
   }
 
   return (
-    <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-      <Grid item xs={12} md={7} lg={8}>
-        <Grid item>
-          <Typography variant="h5">Search Sites With Most Pageviews</Typography>
-        </Grid>
-        <Grid container justifyContent="center" >
-          <Grid item>
-            <Stack
-              direction="row"
-              justifyContent="center"
-              alignItems="center"
-              spacing={2}>
-              <Button
-                size="small"
-                onClick={() => setSlot('month')}
-                color={slot === 'month' ? 'primary' : 'secondary'}
-                variant={slot === 'month' ? 'outlined' : 'text'}
-              >
-                Month
-              </Button>
-              <Button
-                size="small"
-                onClick={() => setSlot('week')}
-                color={slot === 'week' ? 'primary' : 'secondary'}
-                variant={slot === 'week' ? 'outlined' : 'text'}
-              >
-                Week
-              </Button>
+    <Grid container >
+      <Grid container rowSpacing={4.5} justifyContent="left" spacing={2} columns={2}>
+        <Grid item gridColumn={1}>
+          <MainCard content={false} sx={{ mt: 1.5, minHeight: 360, maxWidth: 600, justifyContent: 'space-around' }}>
+          <Stack
+          direction="row"
+          justifyContent="center"
+          witdth='auto'
+          spacing={3}
+        >
+          <Button
+            size="small"
+            onClick={() => setSlot('month')}
+            color={slot === 'month' ? 'primary' : 'secondary'}
+            variant={slot === 'month' ? 'outlined' : 'text'}
+          >
+            Month
+          </Button>
+          <Button
+            size="small"
+            onClick={() => setSlot('week')}
+            color={slot === 'week' ? 'primary' : 'secondary'}
+            variant={slot === 'week' ? 'outlined' : 'text'}
+          >
+            Week
+          </Button>
+        </Stack>
+            <Stack direction="row" alignContent={'space-between'} >
+              {(slot === 'week') ? (
+                <>
+                  <DatePicker
+                    label="Select Month"
+                    value={monthValue}
+                    disabled
+                    sx={{ margin: 2.5 }} />
+                  <CustomDay handler={getWeeklyViews} />
+                </>
+              ) : (
+                <>
+                  <DatePicker
+                    label="Select Month"
+                    value={monthValue}
+                    onChange={(newValue) => getMonthViews(newValue)}
+                    maxDate={yesterday}
+                    minDate={dayjs('2015-05-01')}
+                    onError={(newError) => setError(newError)}
+                    views={['month', 'year']}
+                    openTo='month'
+                    id='month-calendar'
+                    name='month-calendar'
+                    sx={{ margin: 2.5 }}
+                  />
+                  <CustomDay handler={getWeeklyViews} disabled />
+                </>
+              )
+              }
             </Stack>
-          </Grid>
+            <Box sx={{ pt: 1, pr: 2, alignItems: alignItems = 'flex-end' }}>
+              <IncomeAreaChart slot={slot} data={articleData} />
+            </Box>
+          </MainCard>
         </Grid>
-        <MainCard content={false} sx={{ mt: 1.5, minHeight: 360 }}>
-
-          <Stack direction="row" alignContent={'space-between'} >
-            {(slot === 'week') ? (
-              <>
-                <DatePicker
-                  label="Select Month"
-                  value={monthValue}
-                  disabled
-                  sx={{ margin: 2.5 }} />
-                <CustomDay handler={getWeeklyViews} />
-              </>
-            ) : (
-              <>
-                <DatePicker
-                  label="Select Month"
-                  value={monthValue}
-                  onChange={(newValue) => getMonthViews(newValue)}
-                  maxDate={yesterday}
-                  minDate={dayjs('2015-05-01')}
-                  onError={(newError) => setError(newError)}
-                  views={['month', 'year']}
-                  openTo='month'
-                  id='month-calendar'
-                  name='month-calendar'
-                  sx={{ margin: 2.5 }}
-                />
-                <CustomDay handler={getWeeklyViews} disabled />
-              </>
-            )
-            }
-          </Stack>
-        </MainCard>
-        <MainCard content={false} sx={{ mt: 1.5 }}>
-          <Box sx={{
-            height: 1000,
-            width: '100%',
-            '& .super-app-theme--header': {
-              backgroundColor: 'Highlight',
-            },
-          }}>
-            <DataGrid
-              rows={rows}
-              columns={columns}
-              initialState={{
-                pagination: {
-                  paginationModel: {
-                    pageSize: 25,
+        <Grid item gridColumn={2}>
+          <MainCard content={false} sx={{ mt: 1.5, maxWidth: 600 }}>
+            <Box sx={{
+              minHeight: 810,
+              width: '100%',
+              '& .super-app-theme--header': {
+                backgroundColor: 'Highlight',
+              },
+            }}>
+              <DataGrid
+                rows={rows}
+                columns={columns}
+                minHeight={800}
+                initialState={{
+                  pagination: {
+                    paginationModel: {
+                      pageSize: 25,
+                    },
                   },
-                },
-              }}
-              pageSizeOptions={[25, 50]}
-              onRowClick={(gridRowParams) => { getRowDetails(gridRowParams) }}
-            />
-          </Box>
-          <Box sx={{ pt: 1, pr: 2 }}>
-            <IncomeAreaChart slot={slot} data={articleData} />
-          </Box>
-        </MainCard>
+                }}
+                pageSizeOptions={[25, 50]}
+                onRowClick={(gridRowParams) => { getRowDetails(gridRowParams) }}
+              />
+            </Box>
+
+          </MainCard>
+        </Grid>
       </Grid>
     </Grid>
   )
