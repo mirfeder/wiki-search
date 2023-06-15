@@ -1,23 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Body
 from pydantic import BaseModel
 from typing import List
+from collections import defaultdict
 import requests
 
 app = FastAPI()
 
-class Article(BaseModel):
-    article: str
-    views: int
-    rank: int
-class WikiResponseBody(BaseModel):
-    project: str
-    access: str
-    year: str
-    month: str
-    day: str
-    articles: List[Article]
-class WikiResponse(BaseModel):
-    items: List[WikiResponseBody]
+class Days(BaseModel):
+    dates: List[str]
+
 
 baseUrl = 'https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/'
 
@@ -27,8 +18,26 @@ def getMonthly(year, month):
     print(fullUrl)
     headers = {'User-Agent': 'mirfeder@gmail.com'}
     pageViews = requests.get(fullUrl, headers=headers)
-    pageViews:WikiResponse = pageViews.json()
+    pageViews = pageViews.json()
     return {'pageViews': pageViews['items'][0]['articles']}
+
+@app.post("/weekly")
+async def getWeekly(body: Days):
+    print(body.dates)
+    responses = []
+    mem = defaultdict(int)
+    for day in body.dates:
+        print(day)
+        url = baseUrl + day
+        print(url)
+        headers = {'User-Agent': 'mirfeder@gmail.com'}
+        pageViews = requests.get(url, headers=headers)
+        pageViews = pageViews.json()
+        responses.extend(pageViews['items'][0]['articles'])
+    for response in responses:
+        mem[response['article']] += response['views']
+    result = sorted(mem.items(), key=lambda x:x[1], reverse=True)
+    return {'pageViews': result}
 
 
 

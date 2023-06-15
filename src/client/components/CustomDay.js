@@ -58,16 +58,14 @@ function Day(props) {
   );
 }
 
-export default function CustomDay() {
+export default function CustomDay(props) {
   const yesterday = dayjs().subtract(1, 'day');
   const [error, setError] = useState(null)
   const [value, setValue] = React.useState(yesterday);
 
-  const getWeek = (selection) => {
-    const start = selection.startOf('week');
-    const end = selection.endOf('week');
-    console.log(selection, start, end)
-    setValue(selection)
+  const weekly = (newValue) => {
+    setValue(newValue)
+    props.handler(newValue)
   }
 
   return (
@@ -76,7 +74,7 @@ export default function CustomDay() {
         showDaysOutsideCurrentMonth
         fixedWeekNumber={6}
         value={value}
-        onChange={(newValue) => getWeek(newValue)}
+        onChange={(newValue) => weekly(newValue)}
         slots={{ day: Day }}
         slotProps={{
           day: {

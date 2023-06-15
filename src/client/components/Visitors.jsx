@@ -43,7 +43,6 @@ const Visitors = () => {
     response = await fetch(fullUrl)
     response = await response.json()
     if (response != undefined) {
-      console.log(response)
       const newrows = []
       for (let i = 0; i < response['pageViews'].length; i++){
         newrows.push({
@@ -54,8 +53,38 @@ const Visitors = () => {
       }
       setRows(newrows)
     }
-    
   }
+
+  const getWeek = async (selection) => {
+    const start = selection.startOf('week');
+    const end = selection.endOf('week');
+    console.log(selection, start, end)
+    const days = []
+    const body =  {dates: days}
+    for (let i = 0; i < 7; i++){
+      days.push(dayjs(start).add(i, 'day').toISOString().slice(0,10).replace(/-/g, '/'))
+    }
+    console.log(days)
+    response = await fetch('/api/weekly', {
+      method: 'POST', 
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)})
+    response = await response.json()
+    if (response != undefined) {
+      const newrows = []
+      for (let i = 0; i < response['pageViews'].length; i++){
+        newrows.push({
+          article: response['pageViews'][i][0],
+          views: response['pageViews'][i][1],
+          id: i
+        })
+      }
+      setRows(newrows)
+    }
+  }
+
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       <Grid item xs={12} md={7} lg={8}>
@@ -98,7 +127,7 @@ const Visitors = () => {
                   value={endDateValue} 
                   disabled 
                   sx={{margin:2.5}} />
-                <CustomDay />
+                <CustomDay handler={getWeek}/>
               </>
             ) : (
               <>
@@ -115,7 +144,7 @@ const Visitors = () => {
                   name='month-calendar'
                   sx={{margin:2.5}}
                   />
-                <CustomDay disabled />
+                <CustomDay handler={getWeek} disabled />
               </>
             )
           }
