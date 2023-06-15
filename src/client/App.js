@@ -6,9 +6,7 @@ import Visitors from './components/Visitors';
 export const App = (props) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <div>
         <Visitors />
-      </div>
     </LocalizationProvider>
   )
 }

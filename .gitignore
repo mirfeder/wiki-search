@@ -4,3 +4,5 @@ build/bundle.js
 package-lock.json
 .parcel-cache
 dist
+venv
+__pycache__

@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import IncomeAreaChart from './IncomeAreaChart';
 import MainCard from './MainCard';
 import CustomDay from './CustomDay';
-import '../assets/static.css'
+
 const Visitors = () => {
 
   const yesterday = dayjs().subtract(1, 'day');
