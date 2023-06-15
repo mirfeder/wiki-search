@@ -23,13 +23,10 @@ def getMonthly(year, month):
 
 @app.post("/weekly")
 async def getWeekly(body: Days):
-    print(body.dates)
     responses = []
     mem = defaultdict(int)
     for day in body.dates:
-        print(day)
         url = baseUrl + day
-        print(url)
         headers = {'User-Agent': 'mirfeder@gmail.com'}
         pageViews = requests.get(url, headers=headers)
         pageViews = pageViews.json()

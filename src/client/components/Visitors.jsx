@@ -21,17 +21,17 @@ const Visitors = () => {
   const columns =[
     {
       field: 'id',
-      headerName: 'rank',
+      headerName: 'Rank',
       width: 0
     },
     {
       field: 'article',
-      headerName: 'article',
+      headerName: 'Article',
       width: 400
     },
     {
       field: 'views',
-      headerName: 'views',
+      headerName: 'Views',
       width: 150
     }
   ];   
@@ -47,7 +47,7 @@ const Visitors = () => {
       for (let i = 0; i < response['pageViews'].length; i++){
         newrows.push({
           article: response['pageViews'][i]['article'],
-          views: response['pageViews'][i]['views'],
+          views: new Intl.NumberFormat().format(response['pageViews'][i]['views']),
           id: response['pageViews'][i]['rank']
         })
       }
@@ -58,13 +58,11 @@ const Visitors = () => {
   const getWeek = async (selection) => {
     const start = selection.startOf('week');
     const end = selection.endOf('week');
-    console.log(selection, start, end)
     const days = []
     const body =  {dates: days}
     for (let i = 0; i < 7; i++){
       days.push(dayjs(start).add(i, 'day').toISOString().slice(0,10).replace(/-/g, '/'))
     }
-    console.log(days)
     response = await fetch('/api/weekly', {
       method: 'POST', 
       headers: {
@@ -77,8 +75,8 @@ const Visitors = () => {
       for (let i = 0; i < response['pageViews'].length; i++){
         newrows.push({
           article: response['pageViews'][i][0],
-          views: response['pageViews'][i][1],
-          id: i
+          views: new Intl.NumberFormat().format(response['pageViews'][i][1]),
+          id: i + 1
         })
       }
       setRows(newrows)
