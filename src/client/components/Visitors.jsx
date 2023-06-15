@@ -16,20 +16,22 @@ const Visitors = () => {
     
 
   const changeEndDateValue = (newValue) => {
-    console.log(newValue.$d)
+    console.log(dayjs(newValue).toISOString().slice(0,10).replace(/-/g, '/'))
     setEndDateValue(newValue)
-    console.log(slot)
   }
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       <Grid item xs={12} md={7} lg={8}>
         <Grid item>
-          <Typography variant="h5">Unique Visitors</Typography>
+          <Typography variant="h5">Search Sites With Most Pageviews</Typography>
         </Grid>
-      <MainCard content={false} sx={{ mt: 1.5 }}>
-        <Grid container alignItems="left" justifyContent="space-between">
+        <Grid container justifyContent="center" >
           <Grid item>
-            <Stack direction="row" alignItems="left" spacing={0}>
+            <Stack 
+              direction="row" 
+              justifyContent="center"
+              alignItems="center"
+              spacing={2}>
               <Button
                 size="small"
                 onClick={() => setSlot('month')}
@@ -49,28 +51,40 @@ const Visitors = () => {
             </Stack>
           </Grid>
         </Grid>
-        { (slot === 'week') ? (
-          <Grid item xs={12} md={7} lg={8} alignItems="left">
-              <CustomDay />
-          </Grid>
-          ) : (
-            <Grid item xs={12} md={7} lg={8} alignItems="left">
-              <DatePicker 
-                label="Select Month" 
-                value={endDateValue} 
-                onChange={(newValue) => changeEndDateValue(newValue)} 
-                maxDate={yesterday}
-                minDate={dayjs('2015-05-01')}
-                onError={(newError) => setError(newError)}
-                views={['month', 'year']}
-                openTo='month'
-                id='month-calendar'
-                name='month-calendar'
-                />
-            </Grid>
-          )
-        }
-
+      <MainCard content={false} sx={{ mt: 1.5 , minHeight: 360}}>
+        
+          <Stack direction="row" alignContent={'space-between'} >
+          { (slot === 'week') ? (
+              <>
+                <DatePicker 
+                  label="Select Month" 
+                  value={endDateValue} 
+                  disabled 
+                  sx={{margin:2.5}} />
+                <CustomDay />
+              </>
+            ) : (
+              <>
+                <DatePicker 
+                  label="Select Month" 
+                  value={endDateValue} 
+                  onChange={(newValue) => changeEndDateValue(newValue)} 
+                  maxDate={yesterday}
+                  minDate={dayjs('2015-05-01')}
+                  onError={(newError) => setError(newError)}
+                  views={['month', 'year']}
+                  openTo='month'
+                  id='month-calendar'
+                  name='month-calendar'
+                  sx={{margin:2.5}}
+                  />
+                <CustomDay disabled />
+              </>
+            )
+          }
+          </Stack>
+        </MainCard>
+        <MainCard content={false} sx={{ mt: 1.5 }}>
           <Box sx={{ pt: 1, pr: 2 }}>
             <IncomeAreaChart slot={slot} />
           </Box>
