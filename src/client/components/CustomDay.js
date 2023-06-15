@@ -38,9 +38,12 @@ function Day(props) {
   if (selectedDay == null) {
     return <PickersDay day={day} {...other} />;
   }
-
+  const yesterday = dayjs().subtract(1, 'day');
   const start = selectedDay.startOf('week');
-  const end = selectedDay.endOf('week');
+  let end = selectedDay.endOf('week');
+  if (dayjs(end).isAfter(yesterday)) {
+    end = yesterday;
+  };
 
   const dayIsBetween = day.isBetween(start, end, null, '[]');
   const isFirstDay = day.isSame(start, 'day');
