@@ -102,7 +102,7 @@ const PageViewChart = ({ slot, data, article }) => {
     ]);
   }, [data]);
 
-  return <ReactApexChart options={options} series={series} type="area" height={450} />;
+  return <ReactApexChart options={options} series={series} type="area" height={503} />;
 };
 
 PageViewChart.propTypes = {

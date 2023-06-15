@@ -20,18 +20,11 @@ const Visitors = () => {
   );
 
   const rowInitialState = {
-    rows: 0,
-    hideFooter: true,
-    hideFooterPagination: true,
-    hideFooterSelectedRowCount: true,
-    hideFooterRowCount: true,
-    rowBuffer: 5,
     slots: {
       noRowsOverlay: () => <NoDataFound />,
     },
-    showColumnVerticalBorder:true,
-    showCellVerticalBorder:true,
-    autoHeight: true,
+    showColumnVerticalBorder: true,
+    showCellVerticalBorder: true,
     pagination: {
       paginationModel: { pageSize: 15, page: 0 },
     },
@@ -41,10 +34,10 @@ const Visitors = () => {
   const [weekValue, setWeekValue] = useState(null)
   const [monthValue, setmonthValue] = useState(null);
   const [rows, setRows] = useState([])
-  const [articleData, setArticleData] = useState([0, 0, 0, 0, 0, 0, 0])
+  const [articleData, setArticleData] = useState([])
   const [article, setArticle] = useState('')
-  const [ gridState, setGridState] = useState(rowInitialState)
-  const [autoHeight, setAutoHeight] = useState(true)
+  const [gridState, setGridState] = useState(rowInitialState)
+
 
   const columns = [
     {
@@ -89,7 +82,6 @@ const Visitors = () => {
         }
       }
     }
-    setAutoHeight(false)
     setRows(newrows)
   }
 
@@ -97,9 +89,9 @@ const Visitors = () => {
     setWeekValue(selection);
     const [start, end] = calcDays(selection, 'days')
     const newrows = await getDailyViews(start, end)
-    setAutoHeight(false)
     setRows(newrows)
   }
+
   const getDailyViews = async (start, end) => {
     const duration = dayjs(end).diff(start, 'days');
     const days = []
@@ -147,7 +139,12 @@ const Visitors = () => {
     setGridState(rowInitialState)
   }, [slot])
 
-
+  useEffect(() => {
+    setRows([])
+    setArticle('')
+    setArticleData([])
+    setGridState(rowInitialState)
+  }, [monthValue, weekValue])
 
   return (
     <Grid container >
@@ -204,11 +201,10 @@ const Visitors = () => {
                   />
                   <CustomDay handler={getWeeklyViews} disable={true} />
                 </>
-              )
-              }
+              )}
             </Stack>
             <Box sx={{ pt: 1, pr: 2, alignItems: alignItems = 'flex-end' }}>
-              <PageViewChart slot={slot} data={articleData} article={article}/>
+              <PageViewChart slot={slot} data={articleData} article={article} />
             </Box>
           </MainCard>
         </Grid>
@@ -224,7 +220,7 @@ const Visitors = () => {
               <DataGrid
                 rows={rows}
                 columns={columns}
-                autoHeight={autoHeight}
+                autoHeight={true}
                 maxHeight={839}
                 initialState={rowInitialState}
                 onRowClick={(gridRowParams) => { getRowDetails(gridRowParams) }}
@@ -233,10 +229,8 @@ const Visitors = () => {
                 }}
                 showColumnVerticalBorder={true}
                 showCellVerticalBorder={true}
-
               />
             </Box>
-
           </MainCard>
         </Grid>
       </Grid>

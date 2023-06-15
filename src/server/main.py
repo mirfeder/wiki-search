@@ -37,16 +37,15 @@ def getArticle(article, startDate, endDate):
 
 @app.post("/weekly")
 async def getWeekly(body: Days):
-    responses = []
     mem = defaultdict(int)
     for day in body.dates:
         url = topViewsUrl + day
         headers = {'User-Agent': 'mirfeder@gmail.com'}
         pageViews = requests.get(url, headers=headers)
         pageViews = pageViews.json()
-        responses.extend(pageViews['items'][0]['articles'])
-    for response in responses:
-        mem[response['article']] += response['views']
+        responses = pageViews['items'][0]['articles']
+        for response in responses:
+            mem[response['article']] += response['views']
     result = sorted(mem.items(), key=lambda x:x[1], reverse=True)
     return {'pageViews': result}
 
