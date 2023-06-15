@@ -61,14 +61,14 @@ function Day(props) {
   );
 }
 
-export default function CustomDay(props) {
+export default function CustomDay({handler, disable}) {
   const yesterday = dayjs().subtract(1, 'day');
   const [error, setError] = useState(null)
   const [value, setValue] = React.useState(yesterday);
 
   const weekly = (newValue) => {
     setValue(newValue)
-    props.handler(newValue)
+    handler(newValue)
   }
 
   return (
@@ -76,7 +76,7 @@ export default function CustomDay(props) {
       <DateCalendar
         showDaysOutsideCurrentMonth
         fixedWeekNumber={6}
-        value={value}
+        value={!disable ? value : yesterday}
         onChange={(newValue) => weekly(newValue)}
         slots={{ day: Day }}
         slotProps={{
@@ -92,6 +92,7 @@ export default function CustomDay(props) {
         minDate={dayjs('2015-05-01')}
         onError={(newError) => setError(newError)}
         id='week-calendar'
+        disabled={disable}
       />
     </LocalizationProvider>
   );

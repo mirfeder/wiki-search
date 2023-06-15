@@ -1,23 +1,45 @@
-import { useState } from 'react';
-import { Box, Button, Grid, Stack, Typography } from '@mui/material'
+import { useEffect, useState } from 'react';
+import { Box, Button, Grid, Stack } from '@mui/material'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { DataGrid } from '@mui/x-data-grid'
 import dayjs from 'dayjs';
-import Path from 'path'
+import { calcDays, getArticleData } from './utils'
 
-import IncomeAreaChart from './IncomeAreaChart';
+
+import PageViewChart from './PageViewChart';
 import MainCard from './MainCard';
 import CustomDay from './CustomDay';
 
+
 const Visitors = () => {
 
-  const row = [{ id: 0, article: '', views: '' }]
+  const NoDataFound = () => (
+    <Stack height="100%" alignItems="center" justifyContent="center">
+      No data to display
+    </Stack>
+  );
+
+  const rowInitialState = {
+    rows: 0,
+    hideFooter: true,
+    hideFooterPagination: true,
+    hideFooterSelectedRowCount: true,
+    hideFooterRowCount: true,
+    rowBuffer: 5,
+    slots: {
+      noRowsOverlay: () => <NoDataFound />,
+    },
+    showColumnVerticalBorder:true,
+    showCellVerticalBorder:true
+  }
   const yesterday = dayjs().subtract(1, 'day');
   const [slot, setSlot] = useState('week');
   const [weekValue, setWeekValue] = useState(null)
   const [monthValue, setmonthValue] = useState(null);
-  const [rows, setRows] = useState(row)
+  const [rows, setRows] = useState([])
+  const [ gridState, setGridState] = useState(rowInitialState)
   const [articleData, setArticleData] = useState([0, 0, 0, 0, 0, 0, 0])
+  const [article, setArticle] = useState('')
 
 
   const columns = [
@@ -37,7 +59,7 @@ const Visitors = () => {
       field: 'views',
       headerName: 'Views',
       headerClassName: 'super-app-theme--header',
-      width: 500
+      width: 200
 
     }
   ];
@@ -66,27 +88,12 @@ const Visitors = () => {
     setRows(newrows)
   }
 
-  const calcDays = (selection, type) => {
-    let start, end
-    if (type == 'months') {
-      if (selection.$M == dayjs().month()) {
-        start = selection.startOf('month');
-        end = yesterday;
-      } else {
-        start = selection.startOf('month');
-        end = selection.endOf('month');
-      }
-    } else {
-      start = selection.startOf('week');
-      end = selection.endOf('week');
-      if (dayjs(end).isAfter(yesterday)) {
-        end = yesterday;
-      };
-    }
-
-    return [start, end]
+  const getWeeklyViews = async (selection) => {
+    setWeekValue(selection);
+    const [start, end] = calcDays(selection, 'days')
+    const newrows = await getDailyViews(start, end)
+    setRows(newrows)
   }
-
   const getDailyViews = async (start, end) => {
     const duration = dayjs(end).diff(start, 'days');
     const days = []
@@ -117,107 +124,53 @@ const Visitors = () => {
       return row;
     }
   }
-  const getWeeklyViews = async (selection) => {
-    setWeekValue(selection);
-    const [start, end] = calcDays(selection, 'days')
-    const newrows = await getDailyViews(start, end)
-    setRows(newrows)
-  }
-
-  const formattedDate = (selection) => {
-    return dayjs(selection).toISOString().slice(0, 10).replace(/-/g, '');
-  }
 
   const getRowDetails = async (gridRowParams) => {
-    const article = gridRowParams.row.article;
-    let start, end;
-    if (slot == 'week') {
-      [start, end] = calcDays(weekValue, 'days')
-
-    } else {
-      if (monthValue != null && monthValue != undefined) {
-        [start, end] = calcDays(monthValue, 'months')
-      } else {
-        return
-      }
-    }
-    const url = '/api/article/'
-    const fullUrl = Path.join(url, article, formattedDate(start), formattedDate(end))
-    console.log(fullUrl)
-    let response = await fetch(fullUrl)
-    response = await response.json()
-    console.log(response['pageViews'])
-    const arr = response['pageViews']
-    if (response != undefined) {
-      const viewData = slot === 'week'
-        ? new Array(7).fill(0)
-        : new Array(31).fill(0)
-      for (let i = 0; i < arr.length; i++) {
-        if (slot === 'week') {
-          switch (dayjs(arr[i]['timestamp'].slice(0, 8)).day()) {
-            case 0:
-              viewData[0] = arr[i]['views']
-              break;
-            case 1:
-              viewData[1] = arr[i]['views']
-              break;
-            case 2:
-              viewData[2] = arr[i]['views']
-              break;
-            case 3:
-              viewData[3] = arr[i]['views']
-              break;
-            case 4:
-              viewData[4] = arr[i]['views']
-              break;
-            case 5:
-              viewData[5] = arr[i]['views']
-              break;
-            case 6:
-              viewData[6] = arr[i]['views']
-              break;
-            default:
-              console.log(dayjs(arr[i]['timestamp'].slice(0, 8)).day())
-          }
-        } else {
-          const d = parseInt(arr[i]['timestamp'].slice(6, 8) - 1)
-          viewData[d] = arr[i]['views']
-        }
-      }
-      setArticleData(viewData);
-      console.log(viewData, articleData)
-    }
-
+    const art = gridRowParams.row.article;
+    setArticle(art)
+    const viewData = await getArticleData(art, slot, weekValue, monthValue);
+    setArticleData(viewData);
   }
+
+  useEffect(() => {
+    setWeekValue(null)
+    setmonthValue(null)
+    setRows([])
+    setArticle('')
+    setArticleData([])
+    setGridState(rowInitialState)
+  }, [slot])
+
+
 
   return (
     <Grid container >
       <Grid container rowSpacing={4.5} justifyContent="left" spacing={2} columns={2}>
         <Grid item gridColumn={1}>
           <MainCard content={false} sx={{ mt: 1.5, minHeight: 360, maxWidth: 600, justifyContent: 'space-around' }}>
-          <Stack
-          direction="row"
-          justifyContent="center"
-          witdth='auto'
-          spacing={3}
-        >
-          <Button
-            size="small"
-            onClick={() => setSlot('month')}
-            color={slot === 'month' ? 'primary' : 'secondary'}
-            variant={slot === 'month' ? 'outlined' : 'text'}
-          >
-            Month
-          </Button>
-          <Button
-            size="small"
-            onClick={() => setSlot('week')}
-            color={slot === 'week' ? 'primary' : 'secondary'}
-            variant={slot === 'week' ? 'outlined' : 'text'}
-          >
-            Week
-          </Button>
-        </Stack>
+            <Stack
+              direction="row"
+              justifyContent="center"
+              witdth='auto'
+              spacing={3}
+            >
+              <Button
+                size="small"
+                onClick={() => setSlot('month')}
+                color={slot === 'month' ? 'primary' : 'secondary'}
+                variant={slot === 'month' ? 'outlined' : 'text'}
+              >
+                Month
+              </Button>
+              <Button
+                size="small"
+                onClick={() => setSlot('week')}
+                color={slot === 'week' ? 'primary' : 'secondary'}
+                variant={slot === 'week' ? 'outlined' : 'text'}
+              >
+                Week
+              </Button>
+            </Stack>
             <Stack direction="row" alignContent={'space-between'} >
               {(slot === 'week') ? (
                 <>
@@ -226,7 +179,7 @@ const Visitors = () => {
                     value={monthValue}
                     disabled
                     sx={{ margin: 2.5 }} />
-                  <CustomDay handler={getWeeklyViews} />
+                  <CustomDay handler={getWeeklyViews} disable={false} />
                 </>
               ) : (
                 <>
@@ -243,20 +196,20 @@ const Visitors = () => {
                     name='month-calendar'
                     sx={{ margin: 2.5 }}
                   />
-                  <CustomDay handler={getWeeklyViews} disabled />
+                  <CustomDay handler={getWeeklyViews} disable={true} />
                 </>
               )
               }
             </Stack>
             <Box sx={{ pt: 1, pr: 2, alignItems: alignItems = 'flex-end' }}>
-              <IncomeAreaChart slot={slot} data={articleData} />
+              <PageViewChart slot={slot} data={articleData} article={article}/>
             </Box>
           </MainCard>
         </Grid>
         <Grid item gridColumn={2}>
           <MainCard content={false} sx={{ mt: 1.5, maxWidth: 600 }}>
             <Box sx={{
-              minHeight: 810,
+              minHeight: 839,
               width: '100%',
               '& .super-app-theme--header': {
                 backgroundColor: 'Highlight',
@@ -265,16 +218,14 @@ const Visitors = () => {
               <DataGrid
                 rows={rows}
                 columns={columns}
-                minHeight={800}
-                initialState={{
-                  pagination: {
-                    paginationModel: {
-                      pageSize: 25,
-                    },
-                  },
-                }}
-                pageSizeOptions={[25, 50]}
+                autoHeight={true}
+                initialState={rowInitialState}
                 onRowClick={(gridRowParams) => { getRowDetails(gridRowParams) }}
+                slots={{
+                  noRowsOverlay: () => <NoDataFound />,
+                }}
+                showColumnVerticalBorder={true}
+                showCellVerticalBorder={true}
               />
             </Box>
 

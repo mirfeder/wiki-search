@@ -25,12 +25,15 @@ const areaChartOptions = {
   },
   grid: {
     strokeDashArray: 0
+  },
+  title: {
+    text: 'Page Views'
   }
 };
 
 // ==============================|| INCOME AREA CHART ||============================== //
 
-const IncomeAreaChart = ({ slot, data }) => {
+const PageViewChart = ({ slot, data, article }) => {
   const theme = useTheme();
 
   const { primary, secondary } = theme.palette.text;
@@ -77,20 +80,17 @@ const IncomeAreaChart = ({ slot, data }) => {
       },
       tooltip: {
         theme: 'light'
+      },
+      title: {
+        text: 'Page Views by ' + slot + ": " + article
       }
     }));
-  }, [primary, secondary, line, theme, slot]);
+  }, [primary, secondary, line, theme, slot, article]);
 
-  const [series, setSeries] = useState([
-    slot === 'week'
-    ? {
+  const [series, setSeries] = useState([{
       name: 'Page Views',
-      data: [0, 0, 0, 0, 0, 0, 0]
-     }
-     : {
-      name: 'Page Views',
-      data: [0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0,0, 0, 0]
-     }
+      data: []
+    }
   ]);
 
   useEffect(() => {
@@ -105,8 +105,8 @@ const IncomeAreaChart = ({ slot, data }) => {
   return <ReactApexChart options={options} series={series} type="area" height={450} />;
 };
 
-IncomeAreaChart.propTypes = {
+PageViewChart.propTypes = {
   slot: PropTypes.string
 };
 
-export default IncomeAreaChart;
+export default PageViewChart;
