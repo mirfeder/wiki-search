@@ -30,17 +30,21 @@ const Visitors = () => {
       noRowsOverlay: () => <NoDataFound />,
     },
     showColumnVerticalBorder:true,
-    showCellVerticalBorder:true
+    showCellVerticalBorder:true,
+    autoHeight: true,
+    pagination: {
+      paginationModel: { pageSize: 15, page: 0 },
+    },
   }
   const yesterday = dayjs().subtract(1, 'day');
   const [slot, setSlot] = useState('week');
   const [weekValue, setWeekValue] = useState(null)
   const [monthValue, setmonthValue] = useState(null);
   const [rows, setRows] = useState([])
-  const [ gridState, setGridState] = useState(rowInitialState)
   const [articleData, setArticleData] = useState([0, 0, 0, 0, 0, 0, 0])
   const [article, setArticle] = useState('')
-
+  const [ gridState, setGridState] = useState(rowInitialState)
+  const [autoHeight, setAutoHeight] = useState(true)
 
   const columns = [
     {
@@ -85,6 +89,7 @@ const Visitors = () => {
         }
       }
     }
+    setAutoHeight(false)
     setRows(newrows)
   }
 
@@ -92,6 +97,7 @@ const Visitors = () => {
     setWeekValue(selection);
     const [start, end] = calcDays(selection, 'days')
     const newrows = await getDailyViews(start, end)
+    setAutoHeight(false)
     setRows(newrows)
   }
   const getDailyViews = async (start, end) => {
@@ -218,7 +224,8 @@ const Visitors = () => {
               <DataGrid
                 rows={rows}
                 columns={columns}
-                autoHeight={true}
+                autoHeight={autoHeight}
+                maxHeight={839}
                 initialState={rowInitialState}
                 onRowClick={(gridRowParams) => { getRowDetails(gridRowParams) }}
                 slots={{
@@ -226,6 +233,7 @@ const Visitors = () => {
                 }}
                 showColumnVerticalBorder={true}
                 showCellVerticalBorder={true}
+
               />
             </Box>
 
