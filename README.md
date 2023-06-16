@@ -10,8 +10,9 @@ Search wikipedia for most visited pages by week or month
 
 ## Server Environment Setup
 - Note: project was built using python 3.8.16
-### - activate the virtual environment
+### - create and activate the virtual environment
 - `cd src/server` 
+- `python -m venv venv`
 - `source venv/bin/activate`
 ### - install dependencies
 - `pip install -r requirements.txt`
@@ -20,6 +21,7 @@ Search wikipedia for most visited pages by week or month
 - Swagger docs available at http://localhost:8000/docs
 - OpenAPI docs available at http://localhost:8000/reDoc
 ## Run the Client:
+- in a different terminal session, from the project root directory,run:
 - `yarn parcel src/client/index.html`
 - Open browser to http://localhost:1234
 
