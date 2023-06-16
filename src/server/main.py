@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
 from collections import defaultdict
@@ -28,7 +28,8 @@ def getMonthly(year, month):
         month (string): month to search
 
     Returns:
-        dict: a dictionary with key = 'pageViews' and value = a list of dicts with information about top 1000 most viewed articles for that time period
+        dict: a dictionary with key = 'pageViews' and value = a list of dicts
+        with information about top 1000 most viewed articles for that time period
     """
     fullUrl = f'{topViewsUrl}{year}/{month}/all-days'
     headers = {'User-Agent': 'mirfeder@gmail.com'}
@@ -47,9 +48,11 @@ def getArticle(article, startDate, endDate):
         endDate (yyyymmdd): end date of search
 
     Returns:
-       dict: a dictionary with key = 'pageViews' and value = a list of dicts with information about top 1000 most viewed articles for that time period
+       dict: a dictionary with key = 'pageViews' and value = a list of dicts 
+       with information about top 1000 most viewed articles for that time period
     """
-    fullUrl = f'{articleViewsUrl}' + '/'.join(['all-agents', article, 'daily', startDate, endDate])
+    fullUrl = f'{articleViewsUrl}' + '/'.join(
+        ['all-agents', article, 'daily', startDate, endDate])
     headers = {'User-Agent': 'mirfeder@gmail.com'}
     pageViews = requests.get(fullUrl, headers=headers)
     if pageViews.status_code != 200:
@@ -69,7 +72,8 @@ async def getWeekly(body: Days):
         body (Days): a list of dates to search in the format "yyyy/mm/dd"
 
     Returns:
-        dict: a dictionary with key = 'pageViews' and value = a list of tuples with article name and view count, reverse-sorted by number of views
+        dict: a dictionary with key = 'pageViews' and value = a list of tuples with 
+        article name and view count, reverse-sorted by number of views
     """
     mem = defaultdict(int)
     for day in body.dates:

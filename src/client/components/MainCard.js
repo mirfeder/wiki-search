@@ -1,9 +1,10 @@
+/* eslint-disable react/display-name */
 import PropTypes from 'prop-types';
-import { forwardRef } from 'react';
+import { React, forwardRef } from 'react';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { Card, CardContent, CardHeader, Divider, Typography } from '@mui/material';
+import { Card, CardContent, CardHeader, Typography } from '@mui/material';
 
 // header style
 const headerSX = {
@@ -27,7 +28,6 @@ const MainCard = forwardRef(
       shadow,
       sx = {},
       title,
-      codeHighlight,
       ...others
     },
     ref
@@ -43,7 +43,7 @@ const MainCard = forwardRef(
         sx={{
           border: border ? '1px solid' : 'none',
           borderRadius: 2,
-          borderColor: theme.palette.mode === 'dark' ? theme.palette.divider : theme.palette.grey.A800,
+          borderColor: theme.palette.mode === 'dark' ? theme.palette.divider : theme.palette.grey["800"],
           boxShadow: boxShadow && (!border || theme.palette.mode === 'dark') ? shadow || theme.customShadows.z1 : 'inherit',
           ':hover': {
             boxShadow: boxShadow ? shadow || theme.customShadows.z1 : 'inherit'

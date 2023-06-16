@@ -17,7 +17,7 @@ export const calcDays = (selection, type) => {
     end = selection.endOf('week');
     if (dayjs(end).isAfter(yesterday)) {
       end = yesterday;
-    };
+    }
   }
 
   return [start, end]
@@ -85,4 +85,5 @@ let start, end;
       return viewData
     }
 }
+// eslint-disable-next-line no-undef
 module.exports = { calcDays, getArticleData }

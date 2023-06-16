@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import * as React from 'react';
 import { useState } from 'react';
 import dayjs from 'dayjs';
@@ -43,7 +44,7 @@ function Day(props) {
   let end = selectedDay.endOf('week');
   if (dayjs(end).isAfter(yesterday)) {
     end = yesterday;
-  };
+  }
 
   const dayIsBetween = day.isBetween(start, end, null, '[]');
   const isFirstDay = day.isSame(start, 'day');
@@ -63,7 +64,7 @@ function Day(props) {
 
 export default function CustomDay({handler, disable}) {
   const yesterday = dayjs().subtract(1, 'day');
-  const [error, setError] = useState(null)
+  const [, setError] = useState(null)
   const [value, setValue] = React.useState(yesterday);
 
   const weekly = (newValue) => {

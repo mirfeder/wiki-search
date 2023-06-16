@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { React, useEffect, useState } from 'react';
 import { Box, Button, Grid, Stack } from '@mui/material'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { DataGrid } from '@mui/x-data-grid'
@@ -70,7 +70,7 @@ const Visitors = () => {
     } else {
       const url = '/api/monthly/'
       const fullUrl = url + dayjs(newValue).toISOString().slice(0, 7).replace(/-/g, '/')
-      response = await fetch(fullUrl)
+      let response = await fetch(fullUrl)
       response = await response.json()
       if (response != undefined) {
         for (let i = 0; i < response['pageViews'].length; i++) {
@@ -99,7 +99,7 @@ const Visitors = () => {
     for (let i = 0; i <= duration; i++) {
       days.push(dayjs(start).add(i, 'day').toISOString().slice(0, 10).replace(/-/g, '/'))
     }
-    response = await fetch('/api/weekly', {
+    let response = await fetch('/api/weekly', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -119,7 +119,7 @@ const Visitors = () => {
       return newrows;
     }
     else {
-      return row;
+      return [];
     }
   }
 
