@@ -58,6 +58,9 @@ function Day(props) {
       dayIsBetween={dayIsBetween}
       isFirstDay={isFirstDay}
       isLastDay={isLastDay}
+      pagination= {{
+        paginationModel: { pageSize: 15, page: 0 },
+      }}
     />
   );
 }

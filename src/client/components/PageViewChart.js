@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 
 // material-ui
-import { useTheme } from '@mui/material/styles';
 
 // third-party
 import ReactApexChart from 'react-apexcharts';
@@ -30,15 +29,16 @@ const areaChartOptions = {
   },
   title: {
     text: 'Page Views'
-  }
+  },
+
+  mode: 'light'
 };
 
 // ==============================|| INCOME AREA CHART ||============================== //
 
-const PageViewChart = ({ slot, data, article }) => {
-  const theme = useTheme();
+const PageViewChart = ({ slot, data, article, theme }) => {
 
-  const { primary, secondary } = theme.palette.text;
+
   const line = theme.palette.divider;
 
   const [options, setOptions] = useState(areaChartOptions);
@@ -46,24 +46,10 @@ const PageViewChart = ({ slot, data, article }) => {
   useEffect(() => {
     setOptions((prevState) => ({
       ...prevState,
-      colors: [theme.palette.primary.main, theme.palette.primary.light],
       xaxis: {
         categories: slot === 'week' 
         ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] 
         : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
-        labels: {
-          style: {
-            colors: [
-              secondary,
-              secondary,
-              secondary,
-              secondary,
-              secondary,
-              secondary,
-              secondary
-            ]
-          }
-        },
         axisBorder: {
           show: true,
           color: line
@@ -73,7 +59,7 @@ const PageViewChart = ({ slot, data, article }) => {
       yaxis: {
         labels: {
           style: {
-            colors: [secondary]
+            colors: theme.palette.mode === 'dark' ? ['#ce93d8'] : ['black']
           }
         }
       },
@@ -81,13 +67,14 @@ const PageViewChart = ({ slot, data, article }) => {
         borderColor: line
       },
       tooltip: {
-        theme: 'light'
+        theme: 'dark'
       },
       title: {
         text: 'Page Views by ' + slot + ": " + article
-      }
+      },
+      mode: theme.palette.mode === 'dark' ? 'dark' : 'light'
     }));
-  }, [primary, secondary, line, theme, slot, article]);
+  }, [line, theme, slot, article]);
 
   const [series, setSeries] = useState([{
       name: 'Page Views',

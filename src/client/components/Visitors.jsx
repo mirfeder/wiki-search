@@ -1,11 +1,14 @@
-import { React, useEffect, useState } from 'react';
+import { React, useContext, useEffect, useState } from 'react';
 import { Box, Button, Grid, Stack } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
+import IconButton from '@mui/material/IconButton';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { DataGrid } from '@mui/x-data-grid'
 import dayjs from 'dayjs';
 import { calcDays, getArticleData } from './utils'
-
-
+import { ColorModeContext } from '../App';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import PageViewChart from './PageViewChart';
 import MainCard from './MainCard';
 import CustomDay from './CustomDay';
@@ -37,7 +40,11 @@ const Visitors = () => {
   const [rows, setRows] = useState([])
   const [articleData, setArticleData] = useState([])
   const [article, setArticle] = useState('')
+  const [error, setError] = useState('')
   const [, setGridState] = useState(rowInitialState)
+  const theme = useTheme();
+  const colorMode = useContext(ColorModeContext);
+
 
 
   const columns = [
@@ -66,6 +73,11 @@ const Visitors = () => {
    * @param {dayjs} newValue - selected month/year in date picker
    */
   const getMonthViews = async (newValue) => {
+    if (!dayjs(newValue).isValid() ||
+      dayjs(newValue).isAfter(yesterday) ||
+      dayjs(newValue).isBefore(dayjs('2015-05-01'))) {
+      return
+    }
     let newrows = [];
     setmonthValue(newValue)
     const [start, end] = calcDays(newValue, 'months')
@@ -169,14 +181,30 @@ const Visitors = () => {
   }, [monthValue, weekValue])
 
   return (
-    <Grid container >
-      <Grid container rowSpacing={4.5} justifyContent="left" spacing={2} columns={2}>
+    <Grid container backgroundColor={theme.palette.mode === 'dark' ? 'black' : 'white'}>
+      <Grid fontFamily={"Helvetica"}
+        display={'inline-flex'}
+        justifyContent={'center'}
+        align-items="center"
+        width={'100%'}
+        backgroundColor={theme.palette.mode === 'dark' ? 'black' : 'white'}
+        color={theme.palette.mode === 'dark' ? '#ce93d8' : 'blue'}>
+          <h2 >Search Wikipedia for Most Viewed Articles By Month or Year</h2>
+          <Stack direction='row'justifyContent='right' alignItems={'center'}>
+            <IconButton sx={{ ml: 10 }} onClick={colorMode.toggleColorMode} color="inherit">
+              {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+            {theme.palette.mode} mode
+          </Stack>
+
+      </Grid>
+      <Grid container rowSpacing={4.5} justifyContent="center" spacing={2} columns={2}>
         <Grid item gridColumn={1}>
           <MainCard content={false} sx={{ mt: 1.5, minHeight: 360, maxWidth: 600, justifyContent: 'space-around' }}>
             <Stack
               direction="row"
               justifyContent="center"
-              witdth='auto'
+              width='auto'
               spacing={3}
             >
               <Button
@@ -202,6 +230,7 @@ const Visitors = () => {
                   <DatePicker
                     label="Select Month"
                     value={monthValue}
+                    onError={(newError) => setError(newError)}
                     disabled
                     sx={{ margin: 2.5 }} />
                   <CustomDay handler={getWeeklyViews} disable={false} />
@@ -215,6 +244,11 @@ const Visitors = () => {
                     maxDate={yesterday}
                     minDate={dayjs('2015-05-01')}
                     onError={(newError) => setError(newError)}
+                    slotProps={{
+                      textField: {
+                        helperText: 'Between May 2015 and current',
+                      },
+                    }}
                     views={['month', 'year']}
                     openTo='month'
                     id='month-calendar'
@@ -225,8 +259,8 @@ const Visitors = () => {
                 </>
               )}
             </Stack>
-            <Box sx={{ pt: 1, pr: 2, alignItems: 'flex-end' }}>
-              <PageViewChart slot={slot} data={articleData} article={article} />
+              <Box sx={{ pt: 1, pr: 2, alignItems: 'flex-end' }}>
+              <PageViewChart slot={slot} data={articleData} article={article} theme={theme}/>
             </Box>
           </MainCard>
         </Grid>

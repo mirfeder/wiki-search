@@ -59,7 +59,6 @@ let start, end;
     }
     const url = '/api/article/'
     const fullUrl = Path.join(url, article, formattedDate(start), formattedDate(end))
-    console.log(fullUrl)
     let response = await fetch(fullUrl)
     response = await response.json()
     console.log(response['pageViews'])
