@@ -189,7 +189,7 @@ const Visitors = () => {
         width={'100%'}
         backgroundColor={theme.palette.mode === 'dark' ? 'black' : 'white'}
         color={theme.palette.mode === 'dark' ? '#ce93d8' : 'blue'}>
-          <h2 >Search Wikipedia for Most Viewed Articles By Month or Year</h2>
+          <h2 >Search Wikipedia for Most Viewed Articles By Week or Month</h2>
           <Stack direction='row'justifyContent='right' alignItems={'center'}>
             <IconButton sx={{ ml: 10 }} onClick={colorMode.toggleColorMode} color="inherit">
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
