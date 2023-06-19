@@ -2,6 +2,13 @@ import dayjs from 'dayjs';
 const yesterday = dayjs().subtract(1, 'day');
 import Path from 'path'
 
+/**
+ * determines the start and end dates to use in API request
+ * If current month, ensures end date is no later than yesterday
+ * @param {dayjs} selection - selected date
+ * @param {string} type - month or week
+ * @returns start and end dates to use in search
+ */
 export const calcDays = (selection, type) => {
   let start, end
   if (type == 'months') {
@@ -22,11 +29,22 @@ export const calcDays = (selection, type) => {
 
   return [start, end]
 }
-
+/**
+ * 
+ * @param {dayjs} selection 
+ * @returns date formatted for API request
+ */
 const formattedDate = (selection) => {
   return dayjs(selection).toISOString().slice(0, 10).replace(/-/g, '');
 }
-
+/**
+ * Finds weekly or monthly page view stats about a selected article
+ * @param {string} article 
+ * @param {string} slot 
+ * @param {dayjs} weekValue 
+ * @param {dayjs} monthValue 
+ * @returns monthly or weekly views for the article
+ */
 export const getArticleData = async (article, slot, weekValue, monthValue) => {
 let start, end;
     if (slot == 'week') {

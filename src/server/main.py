@@ -1,8 +1,9 @@
+from collections import defaultdict
+from typing import List
+
+import requests
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import List
-from collections import defaultdict
-import requests
 
 app = FastAPI()
 
@@ -14,13 +15,13 @@ class Days(BaseModel):
     """
     dates: List[str]
 
-baseUrlStart = 'https://wikimedia.org/api/rest_v1/metrics/pageviews/'
-baseUrlEnd = '/en.wikipedia/all-access/'
-topViewsUrl = baseUrlStart + 'top' + baseUrlEnd
-articleViewsUrl =  baseUrlStart + 'per-article' + baseUrlEnd
+BASE_URL_START = 'https://wikimedia.org/api/rest_v1/metrics/pageviews/'
+BASE_URL_END = '/en.wikipedia/all-access/'
+TOP_VIEWS_URL = BASE_URL_START + 'top' + BASE_URL_END
+ARTICLE_VIEWS_URL =  BASE_URL_START + 'per-article' + BASE_URL_END
 
 @app.get("/monthly/{year}/{month}")
-def getMonthly(year, month):
+def get_monthly(year, month):
     """receives a year and month to search for most viewed pages during that time period
 
     Args:
@@ -31,35 +32,35 @@ def getMonthly(year, month):
         dict: a dictionary with key = 'pageViews' and value = a list of dicts
         with information about top 1000 most viewed articles for that time period
     """
-    fullUrl = f'{topViewsUrl}{year}/{month}/all-days'
+    fullUrl = f'{TOP_VIEWS_URL}{year}/{month}/all-days'
     headers = {'User-Agent': 'mirfeder@gmail.com'}
-    pageViews = requests.get(fullUrl, headers=headers)
-    pageViews = pageViews.json()
-    return {'pageViews': pageViews['items'][0]['articles']}
+    page_views = requests.get(fullUrl, headers=headers)
+    page_views = page_views.json()
+    return {'pageViews': page_views['items'][0]['articles']}
 
 
-@app.get("/article/{article}/{startDate}/{endDate}")
-def getArticle(article, startDate, endDate):
+@app.get("/article/{article}/{start_date}/{end_date}")
+def getArticle(article, start_date, end_date):
     """retrieves metrics for an article within the dates specified
 
     Args:
         article (string): name of article to search
-        startDate (yyyymmdd): start date of search
-        endDate (yyyymmdd): end date of search
+        start_date (yyyymmdd): start date of search
+        end_date (yyyymmdd): end date of search
 
     Returns:
        dict: a dictionary with key = 'pageViews' and value = a list of dicts 
        with information about top 1000 most viewed articles for that time period
     """
-    fullUrl = f'{articleViewsUrl}' + '/'.join(
-        ['all-agents', article, 'daily', startDate, endDate])
+    fullUrl = f'{ARTICLE_VIEWS_URL}' + '/'.join(
+        ['all-agents', article, 'daily', start_date, end_date])
     headers = {'User-Agent': 'mirfeder@gmail.com'}
-    pageViews = requests.get(fullUrl, headers=headers)
-    if pageViews.status_code != 200:
-        print(pageViews.json())
+    page_views = requests.get(fullUrl, headers=headers)
+    if page_views.status_code != 200:
+        print(page_views.json())
     else:
-        pageViews = pageViews.json()
-        return {'pageViews': pageViews['items']}
+        page_views = page_views.json()
+        return {'pageViews': page_views['items']}
 
 
 @app.post("/weekly")
@@ -77,7 +78,7 @@ async def getWeekly(body: Days):
     """
     mem = defaultdict(int)
     for day in body.dates:
-        url = topViewsUrl + day
+        url = TOP_VIEWS_URL + day
         headers = {'User-Agent': 'mirfeder@gmail.com'}
         pageViews = requests.get(url, headers=headers)
         pageViews = pageViews.json()

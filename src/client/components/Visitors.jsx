@@ -13,12 +13,13 @@ import CustomDay from './CustomDay';
 
 const Visitors = () => {
 
+  // have data grid display message when no data
   const NoDataFound = () => (
     <Stack height="100%" alignItems="center" justifyContent="center">
       No data to display
     </Stack>
   );
-
+  // data grid initial state
   const rowInitialState = {
     slots: {
       noRowsOverlay: () => <NoDataFound />,
@@ -36,7 +37,7 @@ const Visitors = () => {
   const [rows, setRows] = useState([])
   const [articleData, setArticleData] = useState([])
   const [article, setArticle] = useState('')
-  const [gridState, setGridState] = useState(rowInitialState)
+  const [, setGridState] = useState(rowInitialState)
 
 
   const columns = [
@@ -60,7 +61,10 @@ const Visitors = () => {
 
     }
   ];
-
+  /**
+   * Gets data for monthly views. If partial month, gets daily views
+   * @param {dayjs} newValue - selected month/year in date picker
+   */
   const getMonthViews = async (newValue) => {
     let newrows = [];
     setmonthValue(newValue)
@@ -84,14 +88,22 @@ const Visitors = () => {
     }
     setRows(newrows)
   }
-
+  /**
+   * Gets data for weekly views
+   * @param {dayjs} selection = selected data
+   */
   const getWeeklyViews = async (selection) => {
     setWeekValue(selection);
     const [start, end] = calcDays(selection, 'days')
     const newrows = await getDailyViews(start, end)
     setRows(newrows)
   }
-
+  /**
+   * Gets data for a sequence of days from "start" to "end"
+   * @param {dayjs} start 
+   * @param {dayjs} end 
+   * @returns top 1000 articles viewed for the time period from start to end
+   */
   const getDailyViews = async (start, end) => {
     const duration = dayjs(end).diff(start, 'days');
     const days = []
@@ -109,7 +121,7 @@ const Visitors = () => {
     response = await response.json()
     if (response != undefined) {
       const newrows = []
-      for (let i = 0; i < response['pageViews'].length; i++) {
+      for (let i = 0; i < response['pageViews']?.length; i++) {
         newrows.push({
           article: response['pageViews'][i][0],
           views: new Intl.NumberFormat().format(response['pageViews'][i][1]),
@@ -122,7 +134,11 @@ const Visitors = () => {
       return [];
     }
   }
-
+  /**
+   * retrieves article name of selected row in grid
+   * sets article data displayed in chart
+   * @param {*} gridRowParams 
+   */
   const getRowDetails = async (gridRowParams) => {
     const art = gridRowParams.row.article;
     setArticle(art)
@@ -130,6 +146,9 @@ const Visitors = () => {
     setArticleData(viewData);
   }
 
+  /** 
+   * resets results grid and article chart when selection of weekly/monthly changes
+   */
   useEffect(() => {
     setWeekValue(null)
     setmonthValue(null)
@@ -139,6 +158,9 @@ const Visitors = () => {
     setGridState(rowInitialState)
   }, [slot])
 
+  /**
+   * resets results grid and article chart when date selection changes
+   */
   useEffect(() => {
     setRows([])
     setArticle('')
@@ -203,7 +225,7 @@ const Visitors = () => {
                 </>
               )}
             </Stack>
-            <Box sx={{ pt: 1, pr: 2, alignItems: alignItems = 'flex-end' }}>
+            <Box sx={{ pt: 1, pr: 2, alignItems: 'flex-end' }}>
               <PageViewChart slot={slot} data={articleData} article={article} />
             </Box>
           </MainCard>
