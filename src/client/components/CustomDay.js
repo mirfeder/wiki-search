@@ -58,14 +58,14 @@ function Day(props) {
       dayIsBetween={dayIsBetween}
       isFirstDay={isFirstDay}
       isLastDay={isLastDay}
-      pagination= {{
+      pagination={{
         paginationModel: { pageSize: 15, page: 0 },
       }}
     />
   );
 }
 
-export default function CustomDay({handler, disable}) {
+export default function CustomDay({ handler, disable }) {
   const yesterday = dayjs().subtract(1, 'day');
   const [, setError] = useState(null)
   const [value, setValue] = React.useState(yesterday);

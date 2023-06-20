@@ -26,11 +26,10 @@ export const calcDays = (selection, type) => {
       end = yesterday;
     }
   }
-
   return [start, end]
 }
 /**
- * 
+ * format date per article search format
  * @param {dayjs} selection 
  * @returns date formatted for API request
  */
@@ -39,14 +38,14 @@ const formattedDate = (selection) => {
 }
 /**
  * Finds weekly or monthly page view stats about a selected article
- * @param {string} article 
- * @param {string} slot 
- * @param {dayjs} weekValue 
- * @param {dayjs} monthValue 
+ * @param {string} article = article to search
+ * @param {string} slot = month or week
+ * @param {dayjs} weekValue = selection if weekly
+ * @param {dayjs} monthValue = selection if monthly
  * @returns monthly or weekly views for the article
  */
 export const getArticleData = async (article, slot, weekValue, monthValue) => {
-let start, end;
+    let start, end;
     if (slot == 'week') {
       [start, end] = calcDays(weekValue, 'days')
 
@@ -61,42 +60,19 @@ let start, end;
     const fullUrl = Path.join(url, article, formattedDate(start), formattedDate(end))
     let response = await fetch(fullUrl)
     response = await response.json()
-    console.log(response['pageViews'])
-    const arr = response['pageViews']
+    const arr = response?.['pageViews']
     if (response != undefined) {
       const viewData = slot === 'week'
         ? new Array(7).fill(0)
         : new Array(31).fill(0)
       for (let i = 0; i < arr.length; i++) {
         if (slot === 'week') {
-          switch (dayjs(arr[i]['timestamp'].slice(0, 8)).day()) {
-            case 0:
-              viewData[0] = arr[i]['views']
-              break;
-            case 1:
-              viewData[1] = arr[i]['views']
-              break;
-            case 2:
-              viewData[2] = arr[i]['views']
-              break;
-            case 3:
-              viewData[3] = arr[i]['views']
-              break;
-            case 4:
-              viewData[4] = arr[i]['views']
-              break;
-            case 5:
-              viewData[5] = arr[i]['views']
-              break;
-            case 6:
-              viewData[6] = arr[i]['views']
-              break;
-            default:
-              console.log(dayjs(arr[i]['timestamp'].slice(0, 8)).day())
-          }
+          const views = arr?.[i]?.['views']
+          const day = dayjs(arr[i]['timestamp'].slice(0, 8)).day()
+          viewData[day] = views
         } else {
-          const d = parseInt(arr[i]['timestamp'].slice(6, 8) - 1)
-          viewData[d] = arr[i]['views']
+          const d = parseInt(arr?.[i]?.['timestamp'].slice(6, 8) - 1)
+          viewData[d] = arr?.[i]?.['views']
         }
       }
       return viewData

@@ -35,8 +35,13 @@ def get_monthly(year, month):
     fullUrl = f'{TOP_VIEWS_URL}{year}/{month}/all-days'
     headers = {'User-Agent': 'mirfeder@gmail.com'}
     page_views = requests.get(fullUrl, headers=headers)
+    if page_views.status_code != 200:
+        print(page_views.json())
+        return
     page_views = page_views.json()
-    return {'pageViews': page_views['items'][0]['articles']}
+    responses = page_views.get('items')
+    responses = responses[0].get('articles')
+    return {'pageViews': responses}
 
 
 @app.get("/article/{article}/{start_date}/{end_date}")
@@ -60,11 +65,11 @@ def getArticle(article, start_date, end_date):
         print(page_views.json())
     else:
         page_views = page_views.json()
-        return {'pageViews': page_views['items']}
+        return {'pageViews': page_views.get('items')}
 
 
 @app.post("/weekly")
-async def getWeekly(body: Days):
+async def get_weekly(body: Days):
     """takes a list of dates and returns most visited pages for that time period. 
     Dates are assumed to be consecutive but this is not validated. Results will 
     reflect pages with the highest aggregated views over the given dates
@@ -80,11 +85,15 @@ async def getWeekly(body: Days):
     for day in body.dates:
         url = TOP_VIEWS_URL + day
         headers = {'User-Agent': 'mirfeder@gmail.com'}
-        pageViews = requests.get(url, headers=headers)
-        pageViews = pageViews.json()
-        responses = pageViews['items'][0]['articles']
+        page_views = requests.get(url, headers=headers)
+        if page_views.status_code != 200:
+            print(page_views.json())
+            return
+        page_views = page_views.json()
+        responses = page_views.get('items')
+        responses = responses[0].get('articles')
         for response in responses:
-            mem[response['article']] += response['views']
+            mem[response.get('article')] += response.get('views')
     result = sorted(mem.items(), key=lambda x:x[1], reverse=True)
     return {'pageViews': result}
 
