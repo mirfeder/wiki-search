@@ -2,9 +2,11 @@ from collections import defaultdict
 from typing import List
 
 import requests
+import requests_cache
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+requests_cache.install_cache('wiki_cache', backend='sqlite')
 app = FastAPI()
 
 class Days(BaseModel):
@@ -43,9 +45,8 @@ def get_monthly(year, month):
     responses = responses[0].get('articles')
     return {'pageViews': responses}
 
-
 @app.get("/article/{article}/{start_date}/{end_date}")
-def getArticle(article, start_date, end_date):
+def get_article(article, start_date, end_date):
     """retrieves metrics for an article within the dates specified
 
     Args:
@@ -66,8 +67,6 @@ def getArticle(article, start_date, end_date):
     else:
         page_views = page_views.json()
         return {'pageViews': page_views.get('items')}
-
-
 @app.post("/weekly")
 async def get_weekly(body: Days):
     """takes a list of dates and returns most visited pages for that time period. 
@@ -98,6 +97,8 @@ async def get_weekly(body: Days):
     return {'pageViews': result}
 
 
-
-
-
+@app.get("/metrics")
+def metrics():
+    print(requests_cache.get_cache())
+    print('Cached URLS:')
+    print('\n'.join(requests_cache.get_cache().urls()))
