@@ -2,6 +2,9 @@ import React from 'react'
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { configureTheme } from "igniteui-webcomponents";
+import darkMaterial from "../../node_modules/igniteui-webcomponents/themes/dark/material.css?inline";
+import material from "../../node_modules/igniteui-webcomponents/themes/light/material.css?inline;"
 
 import Visitors from './components/Visitors';
 
@@ -26,7 +29,7 @@ export default function ToggleColorMode() {
     }),
     [],
   );
-
+  configureTheme({theme: mode === 'light' ? material : darkMaterial})
   const theme = React.useMemo(
     () =>
       createTheme({

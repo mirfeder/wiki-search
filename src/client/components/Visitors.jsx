@@ -40,7 +40,7 @@ const Visitors = () => {
   const [rows, setRows] = useState([])
   const [articleData, setArticleData] = useState([])
   const [article, setArticle] = useState('')
-  const [error, setError] = useState('')
+  const [, setError] = useState('')
   const [, setGridState] = useState(rowInitialState)
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
@@ -73,14 +73,21 @@ const Visitors = () => {
    * @param {dayjs} newValue - selected month/year in date picker
    */
   const getMonthViews = async (newValue) => {
+    // validate date value and that it is not after yesterday
+    // or before May 2015
     if (!dayjs(newValue).isValid() ||
       dayjs(newValue).isAfter(yesterday) ||
       dayjs(newValue).isBefore(dayjs('2015-05-01'))) {
       return
     }
     let newrows = [];
+    // set value of datepicker
     setmonthValue(newValue)
+    // determine start and end dates of search
     const [start, end] = calcDays(newValue, 'months')
+    // if month is current month, use search for weekly
+    // since it may be a partial month
+    // otherwise take advantage of "all_days" search
     if (newValue.$M == dayjs().month()) {
       newrows = await getDailyViews(start, end)
     } else {
@@ -91,9 +98,9 @@ const Visitors = () => {
       if (response != undefined) {
         for (let i = 0; i < response['pageViews'].length; i++) {
           newrows.push({
-            article: response['pageViews'][i]['article'],
-            views: new Intl.NumberFormat().format(response['pageViews'][i]['views']),
-            id: response['pageViews'][i]['rank']
+            article: response?.['pageViews']?.[i]?.['article'],
+            views: new Intl.NumberFormat().format(response?.['pageViews']?.[i]?.['views']),
+            id: response?.['pageViews']?.[i]?.['rank']
           })
         }
       }
